@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Baby Countdown 🎀</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #fff0f5; padding: 2rem; }
+    h1 {
+  font-size: 2.5rem;
+  animation: colorShift 4s infinite alternate;
+}
+@keyframes colorShift {
+  0% { color: #ff69b4; }  /* Hot Pink */
+  100% { color: #87ceeb; } /* Sky Blue */
+}
+    .countdown { font-size: 2rem; margin-bottom: 2rem; }
+    .votes { margin-top: 1rem; font-size: 1.2rem; }
+    button { padding: 10px 20px; margin: 10px; font-size: 1rem; border: none; border-radius: 8px; cursor: pointer; }
+    .boy { background-color: #87ceeb; }
+    .girl { background-color: #ffb6c1; }
+  </style>
+</head>
+<body>
+  <h1>Countdown to Baby's Arrival 👶</h1>
+  <div class="countdown" id="countdown"></div>
+
+  <h2>What do you think?</h2>
+  <button class="boy" onclick="submitVote('boy')">👦 It's a Boy</button>
+  <button class="girl" onclick="submitVote('girl')">👧 It's a Girl</button>
+
+  <div class="votes" id="votes">Loading vote counts...</div>
+
+  <script>
+    const dueDate = new Date("August 19, 2025 00:00:00").getTime();
+    const countdownEl = document.getElementById("countdown");
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = dueDate - now;
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      countdownEl.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s remaining`;
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    async function fetchVotes() {
+      const res = await fetch('https://getbabygender.infinityfreeapp.com/get-votes.php');
+      const data = await res.json();
+      document.getElementById("votes").innerText = `Boy: ${data.boy} | Girl: ${data.girl}`;
+    }
+
+    async function submitVote(vote) {
+      const formData = new FormData();
+      formData.append("vote", vote);
+
+      await fetch('https://getbabygender.infinityfreeapp.com/vote.php', {
+        method: 'POST',
+        body: formData
+      });
+
+      fetchVotes();
+    }
+
+    fetchVotes();
+  </script>
+</body>
+</html>
